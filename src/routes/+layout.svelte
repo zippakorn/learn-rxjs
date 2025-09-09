@@ -18,9 +18,7 @@
 			<h1 class="text-xl font-bold text-white mb-4">Learn RxJS</h1>
 			<nav>
 					<ul class="space-y-2">
-							<li><a href="/" class="text-gray-400 hover:text-white">Home</a></li>
-							<li><a href="/intro" class="text-gray-400 hover:text-white">Intro</a></li>
-							<li><a href="/contact" class="text-gray-400 hover:text-white">Contact</a></li>
+							<li><a href="/" class="text-gray-400 hover:text-white">Problem</a></li>
 					</ul>
 			</nav>
 	</aside>

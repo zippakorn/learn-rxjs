@@ -18,6 +18,9 @@
     chef.on('notify', message => {
       customer.complain(message);
     });
+    chef.on('close', () => {
+      chef.cleanUp();
+    });
 
     requesRiceFromRiceFarmer.then(rice => {
       const friedRice = chef.cook(rice);
@@ -45,6 +48,9 @@
     });
     chef.on('notify', message => {
       customer.complain(message);
+    });
+    chef.on('close', () => {
+      chef.cleanUp();
     });
 
     requesRiceFromRiceFarmer.then(rice => {
@@ -96,6 +102,52 @@
       }
     })
   `;
+  $: sample3 = /*ts*/ `
+    import { catchError, forkJoin, from, map, merge } from 'rxjs';
+    const chef = new Chef();
+    const requesRiceFromRiceFarmer$ = from(Promise.reslove("rice"));
+    const requestTunaFromFisherMan$ = from(Promise.reslove("tuna"));
+
+    chef.on('serve', dish => {
+      customer.eat(dish);
+    });
+    chef.on('notify', message => {
+      customer.complain(message);
+    });
+    chef.on('close', () => {
+      chef.cleanUp();
+    });
+
+    const observable = merge(
+      requesRiceFromRiceFarmer$.pipe(
+        map(rice => {
+          const friedRice = chef.cook(rice);
+
+          return friedRice;
+        }),
+        catchError(() => {
+          chef.notify("Sorry, we are out of rice today");
+          return of();
+        })
+      ),
+      forkJoin([requesRiceFromRiceFarmer$, requestTunaFromFisherMan$]).pipe(
+        map(([rice, tuna])=> {
+          const sushi = chef.cook(tuna, rice);
+
+          return sushi;
+        }),
+        catchError(() => {
+          chef.notify("Sorry, we are out of tuna today");
+          return of();
+        })
+      )
+    );
+
+    observable.subscribe({
+      next: (dish) => chef.serve(dish),
+      complete: () => chef.close()
+    });
+  `;
 
 	onMount(async () => {
 		mermaid.contentLoaded();
@@ -107,6 +159,7 @@
   <Tabs.List>
     <Tabs.Trigger value="1">1 Dependency</Tabs.Trigger>
     <Tabs.Trigger value="2">2 Dependencies</Tabs.Trigger>
+    <Tabs.Trigger value="3">Rewrite With RxJS</Tabs.Trigger>
   </Tabs.List>
   <Tabs.Content value="1">
     <Highlight language={typescript} code={sample1} let:highlighted>
