@@ -1,10 +1,8 @@
 <script lang="ts">
 	import Highlight, { LineNumbers } from 'svelte-highlight';
 	import typescript from 'svelte-highlight/languages/typescript';
-	import mermaid from 'mermaid';
-	import { onMount } from 'svelte';
 
-  import * as Tabs from "$lib/components/ui/tabs";
+	import * as Tabs from '$lib/components/ui/tabs';
 
 	$: sample1 = /*ts*/ `
     const customer = new Customer();
@@ -32,7 +30,7 @@
     })
   `;
 
-  $: sample2 = /*ts*/ `
+	$: sample2 = /*ts*/ `
     const chef = new Chef();
     const refrigerator = new Refrigerator();
     const requestCompletion = {
@@ -102,7 +100,7 @@
       }
     })
   `;
-  $: sample3 = /*ts*/ `
+	$: sample3 = /*ts*/ `
     import { catchError, forkJoin, from, map, merge } from 'rxjs';
 
     const chef = new Chef();
@@ -150,31 +148,28 @@
     });
   `;
 
-	onMount(async () => {
-		mermaid.contentLoaded();
-	});
-
-  $: step = '1';
+	$: step = '1';
 </script>
+
 <Tabs.Root bind:value={step} class="w-full">
-  <Tabs.List>
-    <Tabs.Trigger value="1">Problem 1</Tabs.Trigger>
-    <Tabs.Trigger value="2">Problem 2</Tabs.Trigger>
-    <Tabs.Trigger value="3">Slove Problem 2 With RxJs</Tabs.Trigger>
-  </Tabs.List>
-  <Tabs.Content value="1">
-    <Highlight language={typescript} code={sample1} let:highlighted>
-      <LineNumbers {highlighted} hideBorder />
-    </Highlight>
-  </Tabs.Content>
-  <Tabs.Content value="2">
-    <Highlight language={typescript} code={sample2} let:highlighted>
-      <LineNumbers {highlighted} hideBorder />
-    </Highlight>
-  </Tabs.Content>
-  <Tabs.Content value="3">
-    <Highlight language={typescript} code={sample3} let:highlighted>
-      <LineNumbers {highlighted} hideBorder />
-    </Highlight>
-  </Tabs.Content>
+	<Tabs.List>
+		<Tabs.Trigger value="1">Problem 1</Tabs.Trigger>
+		<Tabs.Trigger value="2">Problem 2</Tabs.Trigger>
+		<Tabs.Trigger value="3">Slove Problem 2 With RxJs</Tabs.Trigger>
+	</Tabs.List>
+	<Tabs.Content value="1">
+		<Highlight language={typescript} code={sample1} let:highlighted>
+			<LineNumbers {highlighted} hideBorder />
+		</Highlight>
+	</Tabs.Content>
+	<Tabs.Content value="2">
+		<Highlight language={typescript} code={sample2} let:highlighted>
+			<LineNumbers {highlighted} hideBorder />
+		</Highlight>
+	</Tabs.Content>
+	<Tabs.Content value="3">
+		<Highlight language={typescript} code={sample3} let:highlighted>
+			<LineNumbers {highlighted} hideBorder />
+		</Highlight>
+	</Tabs.Content>
 </Tabs.Root>
