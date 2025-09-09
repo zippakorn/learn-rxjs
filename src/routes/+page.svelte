@@ -104,6 +104,7 @@
   `;
   $: sample3 = /*ts*/ `
     import { catchError, forkJoin, from, map, merge } from 'rxjs';
+
     const chef = new Chef();
     const requesRiceFromRiceFarmer$ = from(Promise.reslove("rice"));
     const requestTunaFromFisherMan$ = from(Promise.reslove("tuna"));
@@ -168,6 +169,11 @@
   </Tabs.Content>
   <Tabs.Content value="2">
     <Highlight language={typescript} code={sample2} let:highlighted>
+      <LineNumbers {highlighted} hideBorder />
+    </Highlight>
+  </Tabs.Content>
+  <Tabs.Content value="3">
+    <Highlight language={typescript} code={sample3} let:highlighted>
       <LineNumbers {highlighted} hideBorder />
     </Highlight>
   </Tabs.Content>
