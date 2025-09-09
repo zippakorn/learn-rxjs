@@ -158,9 +158,9 @@
 </script>
 <Tabs.Root bind:value={step} class="w-full">
   <Tabs.List>
-    <Tabs.Trigger value="1">1 Dependency</Tabs.Trigger>
-    <Tabs.Trigger value="2">2 Dependencies</Tabs.Trigger>
-    <Tabs.Trigger value="3">Rewrite With RxJS</Tabs.Trigger>
+    <Tabs.Trigger value="1">Problem 1</Tabs.Trigger>
+    <Tabs.Trigger value="2">Problem 2</Tabs.Trigger>
+    <Tabs.Trigger value="3">Slove Problem 2 With RxJs</Tabs.Trigger>
   </Tabs.List>
   <Tabs.Content value="1">
     <Highlight language={typescript} code={sample1} let:highlighted>
