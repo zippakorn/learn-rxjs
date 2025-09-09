@@ -151,6 +151,7 @@
 	$: step = '1';
 </script>
 
+<h1 class="mb-4 text-2xl font-bold text-white">Problem</h1>
 <Tabs.Root bind:value={step} class="w-full">
 	<Tabs.List>
 		<Tabs.Trigger value="1">Problem 1</Tabs.Trigger>

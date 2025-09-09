@@ -110,10 +110,11 @@
     setTimeout(() => {
       subscription.unsubscribe();
       console.log('Unsubscribed from tree growth observable');
-    }, 5000)
+    }, 5000);
   `;
 </script>
 
+<h1 class="mb-4 text-2xl font-bold text-white">Compare Promise and Observable</h1>
 <Tabs.Root bind:value={tab} class="w-full">
 	<Tabs.List>
 		<Tabs.Trigger value="promise">Promise</Tabs.Trigger>
