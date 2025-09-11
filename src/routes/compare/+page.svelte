@@ -114,7 +114,7 @@
   `;
 </script>
 
-<h1 class="mb-4 text-2xl font-bold text-white">Compare Promise and Observable</h1>
+<h1 class="mb-4 text-2xl font-bold text-white">Promise and Observable</h1>
 <Tabs.Root bind:value={tab} class="w-full">
 	<Tabs.List>
 		<Tabs.Trigger value="promise">Promise</Tabs.Trigger>
