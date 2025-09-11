@@ -7,7 +7,6 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import Highlight, { LineNumbers } from 'svelte-highlight';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import axios from 'axios';
 
 	const serverLogs = $state<string[]>([]);
 	const serverDebounceLogs = $state<string[]>([]);
@@ -98,9 +97,9 @@
 		}
 	});
 </script>
-<h2 class="mb-4 text-xl font-bold text-white">DOM Events</h2>
+<h1 class="mb-4 text-2xl font-bold text-white">From Event</h1>
 <div class="mb-4 flex items-center">
-	<Input id="input-field" placeholder="Type something..." class="w-full max-w-md" />
+	<Input id="input-field" placeholder="Product search..." class="w-full max-w-md" />
 	<Button variant="destructive" class="ml-4" onclick={resetLogs}>Reset Logs</Button>
 </div>
 <Tabs.Root bind:value={tab} class="w-full">

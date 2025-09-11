@@ -20,8 +20,8 @@
 			<ul class="space-y-2">
 				<li><a href="/" class="text-gray-400 hover:text-white">Problem</a></li>
 				<li><a href="/compare" class="text-gray-400 hover:text-white">Promise and Observable</a></li>
-				<li><a href="/frontend" class="text-gray-400 hover:text-white">RxJS for Frontend</a></li>
-				<li><a href="/inner-observable" class="text-gray-400 hover:text-white">Inner Observable</a></li>
+				<li><a href="/frontend" class="text-gray-400 hover:text-white">From Event</a></li>
+				<li><a href="/inner" class="text-gray-400 hover:text-white">Inner Observable</a></li>
 			</ul>
 		</nav>
 	</aside>
