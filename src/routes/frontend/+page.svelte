@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { debounce, debounceTime, from, fromEvent } from 'rxjs';
+	import { debounceTime, fromEvent } from 'rxjs';
 	import { onMount } from 'svelte';
 	import typescript from 'svelte-highlight/languages/typescript';
 
@@ -7,6 +7,7 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import Highlight, { LineNumbers } from 'svelte-highlight';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import axios from 'axios';
 
 	const serverLogs = $state<string[]>([]);
 	const serverDebounceLogs = $state<string[]>([]);
@@ -97,8 +98,7 @@
 		}
 	});
 </script>
-
-<h1 class="mb-4 text-2xl font-bold text-white">RxJS for Frontend</h1>
+<h2 class="mb-4 text-xl font-bold text-white">DOM Events</h2>
 <div class="mb-4 flex items-center">
 	<Input id="input-field" placeholder="Type something..." class="w-full max-w-md" />
 	<Button variant="destructive" class="ml-4" onclick={resetLogs}>Reset Logs</Button>
