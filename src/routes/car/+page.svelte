@@ -3,27 +3,22 @@
 	import {
 		bufferCount,
 		catchError,
-		combineLatest,
 		defer,
 		EMPTY,
 		finalize,
 		forkJoin,
 		from,
-		lastValueFrom,
 		map,
 		merge,
 		mergeMap,
-		NEVER,
 		Observable,
 		of,
 		Subject,
-		switchMap,
-		take,
 		takeUntil,
-		tap,
-		throwError
+		tap
 	} from 'rxjs';
 	import { onMount } from 'svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let isProcessing = false;
 	let processedCars: any[] = [];
@@ -35,16 +30,61 @@
 		completedCars: 0
 	};
 
-	onMount(async () => {
+	// Step tracking for progress visualization
+	let currentStepIndex = 0;
+	const processSteps = [
+		{ id: 0, name: 'Initialize', description: 'Starting factory systems', icon: '🔧' },
+		{ id: 1, name: 'Load Data', description: 'Loading cars, engines, and interiors', icon: '📦' },
+		{ id: 2, name: 'Install Engines', description: 'Installing engines in cars', icon: '⚙️' },
+		{ id: 3, name: 'Paint Cars', description: 'Applying paint to vehicles', icon: '🎨' },
+		{ id: 4, name: 'Install Interiors', description: 'Adding interior components', icon: '🪑' },
+		{ id: 5, name: 'Ship Batches', description: 'Shipping completed vehicles', icon: '🚚' },
+		{ id: 6, name: 'Complete', description: 'All processes finished', icon: '✅' }
+	];
+
+	let manufacturer$: Observable<any> | null = null;
+	let subscription: any = null;
+	let abortController: AbortController | null = null;
+
+	function resetFactory() {
+		// Cancel any ongoing subscription
+		if (subscription) {
+			subscription.unsubscribe();
+		}
+
+		// Abort any ongoing HTTP requests
+		if (abortController) {
+			abortController.abort();
+		}
+
+		// Reset all state
+		isProcessing = false;
+		processedCars = [];
+		errorMessage = '';
+		currentStep = '';
+		currentStepIndex = 0;
+		stats = {
+			totalCars: 0,
+			processedBatches: 0,
+			completedCars: 0
+		};
+	}
+
+	function startFactory() {
+		if (isProcessing) return;
+
+		resetFactory();
+
 		const axiosInstance = axios.create({
 			baseURL: 'http://localhost:3000',
 			timeout: 10000
 		});
 
-		const abortController = new AbortController();
+		abortController = new AbortController();
 
-		const manufacturer$ = defer(() => {
+		manufacturer$ = defer(() => {
 			isProcessing = true;
+			currentStepIndex = 0;
 			currentStep = 'Initializing factory systems...';
 			errorMessage = '';
 			processedCars = [];
@@ -59,7 +99,7 @@
 						engineId: number;
 					}[]
 				>('/cars', {
-					signal: abortController.signal
+					signal: abortController!.signal
 				})
 			);
 			const engines$ = from(
@@ -69,7 +109,7 @@
 						name: string;
 					}[]
 				>('/engines', {
-					signal: abortController.signal
+					signal: abortController!.signal
 				})
 			);
 			const interiors$ = from(
@@ -79,12 +119,12 @@
 						name: string;
 					}[]
 				>('/interiors', {
-					signal: abortController.signal
+					signal: abortController!.signal
 				})
 			);
 			const stop$ = new Subject<void>();
 			stop$.subscribe(() => {
-				abortController.abort();
+				abortController!.abort();
 				console.log('Aborted all requests');
 			});
 			let carBatchCount = 0;
@@ -92,6 +132,7 @@
 			forkJoin([cars$, engines$, interiors$])
 				.pipe(
 					tap(() => {
+						currentStepIndex = 1;
 						currentStep = 'Loading factory data...';
 					}),
 					catchError((error) => {
@@ -106,6 +147,7 @@
 			return cars$.pipe(
 				map((response) => {
 					stats.totalCars = response.data.length;
+					currentStepIndex = 2;
 					currentStep = `Processing ${stats.totalCars} cars...`;
 					return response.data;
 				}),
@@ -120,6 +162,9 @@
 						})
 					);
 				}),
+				tap(() => {
+					currentStepIndex = 3;
+				}),
 				mergeMap((carWithEngine) => {
 					currentStep = `Painting ${carWithEngine.name}...`;
 					return from(
@@ -130,7 +175,7 @@
 							engineName: string;
 							paintingName: string;
 						}>('/paint', carWithEngine, {
-							signal: abortController.signal
+							signal: abortController!.signal
 						})
 					).pipe(
 						catchError((error) => {
@@ -141,6 +186,9 @@
 						}),
 						takeUntil(stop$)
 					);
+				}),
+				tap(() => {
+					currentStepIndex = 4;
 				}),
 				mergeMap((response) => {
 					currentStep = `Installing interior for ${response.data.name}...`;
@@ -159,6 +207,7 @@
 				}),
 				bufferCount(3),
 				tap((batch) => {
+					currentStepIndex = 5;
 					carBatchCount++;
 					stats.processedBatches = carBatchCount;
 					currentStep = `Shipping batch ${carBatchCount} (${batch.length} cars)...`;
@@ -171,7 +220,7 @@
 							{ cars: carsWithEngines },
 							{
 								params: { error: 'false' },
-								signal: abortController.signal
+								signal: abortController!.signal
 							}
 						)
 					).pipe(
@@ -195,17 +244,22 @@
 				return EMPTY;
 			}),
 			finalize(() => {
+				currentStepIndex = 6;
 				currentStep = 'Factory processing completed!';
 				isProcessing = false;
 				console.log('Completed fetching cars with engines');
 			})
 		);
 
-		manufacturer$.subscribe({
+		subscription = manufacturer$.subscribe({
 			next: (data) => {
 				console.log('Car with engine:', data);
 			}
 		});
+	}
+
+	onMount(() => {
+		startFactory();
 	});
 </script>
 
@@ -222,6 +276,67 @@
 			<div
 				class="mx-auto mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
 			></div>
+
+			<!-- Control Buttons -->
+			<div class="mt-6 flex justify-center gap-4">
+				<Button onclick={startFactory} disabled={isProcessing} variant="default" class="px-6 py-2">
+					{isProcessing ? 'Processing...' : 'Start Factory'}
+				</Button>
+				<Button onclick={resetFactory} variant="destructive" class="px-6 py-2">
+					Reset Factory
+				</Button>
+			</div>
+		</div>
+
+		<!-- Process Steps Progress -->
+		<div class="mb-8 rounded-xl border border-slate-700/50 bg-slate-800/50 p-6 backdrop-blur-sm">
+			<h3 class="mb-6 text-xl font-semibold text-white">Manufacturing Progress</h3>
+
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-7">
+				{#each processSteps as step, index}
+					<div class="text-center">
+						<div
+							class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full transition-all duration-300 {index <
+							currentStepIndex
+								? 'border-2 border-green-500 bg-green-500/20'
+								: index === currentStepIndex && isProcessing
+									? 'animate-pulse border-2 border-blue-500 bg-blue-500/20'
+									: 'border-2 border-slate-600 bg-slate-700/50'}"
+						>
+							<span
+								class="text-lg {index < currentStepIndex
+									? 'text-green-400'
+									: index === currentStepIndex && isProcessing
+										? 'text-blue-400'
+										: 'text-slate-400'}"
+							>
+								{step.icon}
+							</span>
+						</div>
+						<h4
+							class="text-sm font-medium {index <= currentStepIndex
+								? 'text-white'
+								: 'text-slate-400'}"
+						>
+							{step.name}
+						</h4>
+						<p
+							class="mt-1 text-xs {index <= currentStepIndex ? 'text-slate-300' : 'text-slate-500'}"
+						>
+							{step.description}
+						</p>
+
+						<!-- Progress indicator line (except for last step) -->
+						{#if index < processSteps.length - 1}
+							<div class="mt-3 flex justify-center">
+								<div
+									class="h-0.5 w-8 {index < currentStepIndex ? 'bg-green-500' : 'bg-slate-600'}"
+								></div>
+							</div>
+						{/if}
+					</div>
+				{/each}
+			</div>
 		</div>
 
 		<!-- Status Dashboard -->
@@ -251,16 +366,10 @@
 				<div class="space-y-3">
 					<div class="text-slate-300">
 						<p class="font-medium">{currentStep || 'Ready to start production'}</p>
-						{#if isProcessing}
-							<div class="mt-2 h-2 w-full rounded-full bg-slate-700">
-								<div
-									class="h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
-									style="width: {stats.totalCars > 0
-										? (stats.completedCars / stats.totalCars) * 100
-										: 0}%"
-								></div>
-							</div>
-						{/if}
+						<div class="mt-2 text-sm text-slate-400">
+							Step {currentStepIndex + 1} of {processSteps.length}: {processSteps[currentStepIndex]
+								?.name || 'Ready'}
+						</div>
 					</div>
 
 					{#if errorMessage}
