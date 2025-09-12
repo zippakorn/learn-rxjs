@@ -22,6 +22,7 @@
 				<li><a href="/compare" class="text-gray-400 hover:text-white">Promise and Observable</a></li>
 				<li><a href="/frontend" class="text-gray-400 hover:text-white">From Event</a></li>
 				<li><a href="/inner" class="text-gray-400 hover:text-white">Inner Observable</a></li>
+				<li><a href="/car" class="text-gray-400 hover:text-white">Car Factory Problem</a></li>
 			</ul>
 		</nav>
 	</aside>

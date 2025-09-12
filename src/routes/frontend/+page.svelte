@@ -17,7 +17,7 @@
 
 	function doRequestFactory(logs: string[]) {
 		return function doRequest(query: string): Promise<string> {
-			const randomDelay = Math.floor(Math.random() * 1000) + 500; // Random delay between 500ms to 1500ms
+			const randomDelay = 100; // Random delay between 500ms to 1500ms
 			return new Promise((resolve, reject) => {
 				setTimeout(() => {
 					const datetime = new Date().toLocaleTimeString();
