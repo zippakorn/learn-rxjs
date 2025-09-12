@@ -259,7 +259,15 @@
 	}
 
 	onMount(() => {
-		startFactory();
+		return () => {
+			// Cleanup on component destroy
+			if (subscription) {
+				subscription.unsubscribe();
+			}
+			if (abortController) {
+				abortController.abort();
+			}
+		};
 	});
 </script>
 
