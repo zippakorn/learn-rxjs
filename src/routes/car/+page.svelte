@@ -19,6 +19,7 @@
 	} from 'rxjs';
 	import { onMount } from 'svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import mermaid from 'mermaid';
 
 	let isProcessing = false;
 	let processedCars: any[] = [];
@@ -259,6 +260,7 @@
 	}
 
 	onMount(() => {
+		mermaid.contentLoaded();
 		return () => {
 			// Cleanup on component destroy
 			if (subscription) {
@@ -278,7 +280,7 @@
 			<h1
 				class="mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-5xl font-bold text-transparent text-white"
 			>
-				🏭 AutoTech Manufacturing
+					🏭 AutoTech Manufacturing
 			</h1>
 			<p class="text-xl text-slate-300">Real-time Car Factory Processing System</p>
 			<div
@@ -509,6 +511,65 @@
 					<p class="mt-1 text-xs text-slate-400">Batch delivery</p>
 				</div>
 			</div>
+		</div>
+
+		<!-- Factory Flow Sequence Diagram -->
+		<div class="mt-12 rounded-xl border border-slate-700/50 bg-slate-800/50 p-6 backdrop-blur-sm">
+			<h3 class="mb-4 text-xl font-semibold text-white">⚙️ Process Sequence (Mermaid)</h3>
+			<p class="mb-4 text-sm text-slate-400">
+				High-level request / response & error handling flow for the manufacturing pipeline.
+			</p>
+			<pre class="mermaid text-xs">
+{`sequenceDiagram
+    autonumber
+    actor User
+    participant UI as CarFactory UI
+    participant API as Backend Server
+    participant C as /cars
+    participant E as /engines
+    participant I as /interiors
+    participant P as /paint
+    participant S as /shipping
+
+    User->>UI: Click "Start Factory"
+    rect rgb(34,49,63)
+        UI->>API: GET /cars
+        UI->>API: GET /engines
+        UI->>API: GET /interiors
+        API-->>UI: cars[]
+        API-->>UI: engines[]
+        API-->>UI: interiors[]
+    end
+    UI->>UI: Step = "Processing N cars..."
+
+    loop For each car
+        UI->>E: Resolve engine (in-memory list)
+        UI->>P: POST /paint car
+        P-->>UI: Painted car
+        UI->>I: Resolve interior (in-memory list)
+        UI->>UI: Completed car aggregated
+        opt Every 3 cars
+            UI->>S: POST /shipping batch(3)
+            S-->>UI: { status: shipped }
+        end
+    end
+
+    UI-->>User: "Factory processing completed!"
+
+    alt Load error (cars|engines|interiors)
+        API--x UI: Error
+        UI-->>User: Failed to load factory data
+    else Paint error
+        P--x UI: Paint failure
+        UI-->>User: Failed to paint car
+    else Interior resolution error
+        I--x UI: Interior failure
+        UI-->>User: Factory processing failed
+    else Shipping error
+        S--x UI: Shipping failure
+        UI-->>User: Failed to ship cars
+    end
+    `}</pre>
 		</div>
 	</div>
 </div>
